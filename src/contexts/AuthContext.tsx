@@ -4,6 +4,7 @@ import { supabase, getCurrentUser } from '../lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 import { User } from '@/types/models';
 import { useNavigate } from 'react-router-dom';
+import type { Database } from '@/integrations/supabase/types';
 
 interface AuthContextType {
   user: User | null;
@@ -36,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     fetchUser();
 
-    // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN') {
@@ -88,7 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) throw error;
       
-      // Create user profile in users table
       if (data.user) {
         const { error: profileError } = await supabase
           .from('users')

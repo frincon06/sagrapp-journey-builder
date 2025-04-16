@@ -1,6 +1,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
+import { User } from '@/types/models';
 
 const SUPABASE_URL = "https://nphcolyqvcswmfkpcgdf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5waGNvbHlxdmNzd21ma3BjZ2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MTU3MzcsImV4cCI6MjA2MDM5MTczN30.Gdm8Dsc7_bL3dJ6UKojjWc-ZUeh9OFfVwjD4rGnYaQQ";
@@ -22,5 +23,5 @@ export async function getCurrentUser() {
     return null;
   }
   
-  return data;
+  return data as User;
 }
