@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -114,6 +115,18 @@ const AppRoutes = () => {
           >
             <ProtectedRoute>
               <Courses />
+            </ProtectedRoute>
+          </motion.div>
+        } />
+        <Route path="/admin" element={
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ProtectedRoute>
+              <Admin />
             </ProtectedRoute>
           </motion.div>
         } />

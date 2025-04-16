@@ -1,3 +1,4 @@
+
 import { supabase, dbCourseToModel } from '@/lib/supabase';
 import { Course, Lesson, Question, SpiritualActivity, User } from '@/types/models';
 import { Json } from '@/integrations/supabase/types';
@@ -267,4 +268,34 @@ export async function checkAdminStatus(userId: string) {
   }
   
   return !!data; // Return true if data exists (user is admin)
+}
+
+// Make a user an admin
+export async function makeUserAdmin(userId: string) {
+  const { data, error } = await supabase
+    .from('admins')
+    .insert({ user_id: userId })
+    .select();
+    
+  if (error) {
+    console.error('Error making user admin:', error);
+    throw error;
+  }
+  
+  return true;
+}
+
+// Remove admin role from a user
+export async function removeUserAdmin(userId: string) {
+  const { error } = await supabase
+    .from('admins')
+    .delete()
+    .eq('user_id', userId);
+    
+  if (error) {
+    console.error('Error removing admin role:', error);
+    throw error;
+  }
+  
+  return true;
 }
