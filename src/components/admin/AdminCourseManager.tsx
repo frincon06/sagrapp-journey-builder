@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -300,7 +300,10 @@ const AdminCourseManager = () => {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>{course.lesson_count}</TableCell>
+                    <TableCell>{typeof course.lesson_count === 'number' ? course.lesson_count : (
+                      Array.isArray(course.lesson_count) && course.lesson_count.length > 0 ? 
+                      course.lesson_count[0].count : 0
+                    )}</TableCell>
                     <TableCell className="text-right space-x-1">
                       <Dialog>
                         <DialogTrigger asChild>
