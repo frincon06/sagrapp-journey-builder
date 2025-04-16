@@ -1,17 +1,11 @@
 
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/integrations/supabase/types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_URL = "https://nphcolyqvcswmfkpcgdf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5waGNvbHlxdmNzd21ma3BjZ2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MTU3MzcsImV4cCI6MjA2MDM5MTczN30.Gdm8Dsc7_bL3dJ6UKojjWc-ZUeh9OFfVwjD4rGnYaQQ";
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
-}
-
-export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseKey || ''
-);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export async function getCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser();
