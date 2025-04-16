@@ -20,7 +20,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger
+  SidebarTrigger,
+  SidebarRail
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -116,7 +117,7 @@ export function AppSidebar() {
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild tooltip={item.title}>
                   <Link
                     to={item.path}
                     className={
@@ -139,7 +140,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {adminItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild tooltip={item.title}>
                     <Link
                       to={item.path}
                       className={
@@ -166,6 +167,7 @@ export function AppSidebar() {
           Cerrar sesión
         </Button>
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }
