@@ -50,7 +50,15 @@ const Courses = () => {
 
   // Function to get course progress percentage
   const getCourseProgress = (courseId: string) => {
-    const courseLessons = courses.find(c => c.id === courseId)?.lesson_count || 0;
+    const courseLessonCount = courses.find(c => c.id === courseId)?.lesson_count || 0;
+    let courseLessons = 0;
+    
+    if (typeof courseLessonCount === 'number') {
+      courseLessons = courseLessonCount;
+    } else if (Array.isArray(courseLessonCount) && courseLessonCount.length > 0) {
+      courseLessons = courseLessonCount[0]?.count || 0;
+    }
+    
     const completedLessons = userProgress.filter(
       p => p.course_id === courseId && p.completed
     ).length;

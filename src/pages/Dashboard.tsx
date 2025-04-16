@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getCourses, getUserProgress } from "@/services/courseService";
+import { getCourses, getUserProgress, updateUserStreak } from "@/services/courseService";
 import { Course, UserProgress } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -56,7 +56,15 @@ const Dashboard = () => {
 
   // Function to get course progress percentage
   const getCourseProgress = (courseId: string) => {
-    const courseLessons = courses.find(c => c.id === courseId)?.lesson_count || 0;
+    const courseLessonCount = courses.find(c => c.id === courseId)?.lesson_count || 0;
+    let courseLessons = 0;
+    
+    if (typeof courseLessonCount === 'number') {
+      courseLessons = courseLessonCount;
+    } else if (Array.isArray(courseLessonCount) && courseLessonCount.length > 0) {
+      courseLessons = courseLessonCount[0]?.count || 0;
+    }
+    
     const completedLessons = userProgress.filter(
       p => p.course_id === courseId && p.completed
     ).length;

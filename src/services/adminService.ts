@@ -1,4 +1,3 @@
-
 import { supabase, dbCourseToModel } from '@/lib/supabase';
 import { Course, Lesson, Question, SpiritualActivity, User } from '@/types/models';
 import { Json } from '@/integrations/supabase/types';
@@ -25,7 +24,7 @@ export async function getAllCourses() {
 export async function createCourse(course: { title: string; description: string; order_index?: number; is_active?: boolean; image_url?: string | null }) {
   const { data, error } = await supabase
     .from('courses')
-    .insert([course])
+    .insert(course)
     .select();
     
   if (error) {
@@ -137,7 +136,7 @@ export async function createQuestion(question: {
 }) {
   const { data, error } = await supabase
     .from('questions')
-    .insert([question])
+    .insert(question)
     .select();
     
   if (error) {
@@ -186,7 +185,7 @@ export async function createSpiritualActivity(activity: {
 }) {
   const { data, error } = await supabase
     .from('spiritual_activities')
-    .insert([activity])
+    .insert(activity)
     .select();
     
   if (error) {
