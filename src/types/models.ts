@@ -19,7 +19,7 @@ export interface Course {
   order_index: number;
   is_active: boolean;
   created_at: string; // ISO date
-  lesson_count: number;
+  lesson_count: number | { count: number }[];
 }
 
 export interface Lesson {
@@ -61,7 +61,7 @@ export interface UserProgress {
   course_id: string;
   lesson_id: string;
   completed: boolean;
-  answers: UserAnswer[];
+  answers: UserAnswer[] | any; // Changed to allow Json type from Supabase
   spiritual_response?: string;
   xp_earned: number;
   completed_at?: string; // ISO date

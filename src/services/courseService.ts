@@ -1,6 +1,6 @@
-
-import { supabase } from '@/lib/supabase';
-import { Course, Lesson, Question, SpiritualActivity, UserProgress } from '@/types/models';
+import { supabase, dbCourseToModel } from '@/lib/supabase';
+import { Course, Lesson, Question, SpiritualActivity, UserProgress, UserAnswer } from '@/types/models';
+import { Json } from '@/integrations/supabase/types';
 
 export async function getCourses() {
   const { data, error } = await supabase
@@ -17,7 +17,7 @@ export async function getCourses() {
     throw error;
   }
   
-  return data as Course[];
+  return data.map(course => dbCourseToModel(course)) as Course[];
 }
 
 export async function getCourseById(courseId: string) {
@@ -35,7 +35,7 @@ export async function getCourseById(courseId: string) {
     throw error;
   }
   
-  return data as Course;
+  return dbCourseToModel(data) as Course;
 }
 
 export async function getLessons(courseId: string) {
@@ -55,7 +55,6 @@ export async function getLessons(courseId: string) {
 }
 
 export async function getLessonById(lessonId: string) {
-  // First get the lesson
   const { data: lessonData, error: lessonError } = await supabase
     .from('lessons')
     .select('*')
@@ -67,7 +66,6 @@ export async function getLessonById(lessonId: string) {
     throw lessonError;
   }
   
-  // Then get questions for the lesson
   const { data: questionsData, error: questionsError } = await supabase
     .from('questions')
     .select('*')
@@ -79,14 +77,13 @@ export async function getLessonById(lessonId: string) {
     throw questionsError;
   }
   
-  // Get spiritual activity if exists
   const { data: activityData, error: activityError } = await supabase
     .from('spiritual_activities')
     .select('*')
     .eq('lesson_id', lessonId)
     .single();
     
-  if (activityError && activityError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is OK
+  if (activityError && activityError.code !== 'PGRST116') {
     console.error('Error fetching spiritual activity:', activityError);
     throw activityError;
   }
@@ -109,13 +106,27 @@ export async function getUserProgress(userId: string) {
     throw error;
   }
   
-  return data as UserProgress[];
+  return data.map(progress => ({
+    ...progress,
+    answers: progress.answers as unknown as UserAnswer[]
+  })) as UserProgress[];
 }
 
-export async function saveLessonProgress(progress: UserProgress) {
+export async function saveLessonProgress(progress: Omit<UserProgress, 'id'>) {
+  const supabaseProgress = {
+    user_id: progress.user_id,
+    course_id: progress.course_id,
+    lesson_id: progress.lesson_id,
+    completed: progress.completed,
+    answers: progress.answers as unknown as Json,
+    spiritual_response: progress.spiritual_response,
+    xp_earned: progress.xp_earned,
+    completed_at: progress.completed_at
+  };
+  
   const { data, error } = await supabase
     .from('user_progress')
-    .insert([progress]);
+    .insert([supabaseProgress]);
     
   if (error) {
     console.error('Error saving lesson progress:', error);
@@ -126,7 +137,6 @@ export async function saveLessonProgress(progress: UserProgress) {
 }
 
 export async function updateUserXP(userId: string, xpToAdd: number) {
-  // First get current user data
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('xp, level')
@@ -138,16 +148,13 @@ export async function updateUserXP(userId: string, xpToAdd: number) {
     throw userError;
   }
   
-  // Calculate new XP and level
   const newXP = (userData?.xp || 0) + xpToAdd;
   let newLevel = userData?.level || 1;
   
-  // Simple leveling logic: level up every 100 XP
   if (newXP >= ((newLevel * 100) + ((newLevel - 1) * 50))) {
     newLevel += 1;
   }
   
-  // Update user
   const { data, error } = await supabase
     .from('users')
     .update({ 
@@ -166,7 +173,6 @@ export async function updateUserXP(userId: string, xpToAdd: number) {
 }
 
 export async function updateUserStreak(userId: string) {
-  // Get user's current streak and last activity
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('streak_days, last_activity')
@@ -181,7 +187,6 @@ export async function updateUserStreak(userId: string) {
   const lastActivity = new Date(userData?.last_activity || '');
   const today = new Date();
   
-  // Reset streak if more than a day has passed
   if (today.getDate() - lastActivity.getDate() > 1) {
     const { error } = await supabase
       .from('users')
@@ -198,7 +203,6 @@ export async function updateUserStreak(userId: string) {
     
     return 1;
   } 
-  // Increment streak if it's a new day
   else if (today.getDate() !== lastActivity.getDate()) {
     const newStreak = (userData?.streak_days || 0) + 1;
     
@@ -218,6 +222,5 @@ export async function updateUserStreak(userId: string) {
     return newStreak;
   }
   
-  // Return current streak if same day
   return userData?.streak_days || 0;
 }

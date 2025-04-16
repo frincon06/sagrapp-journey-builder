@@ -1,6 +1,7 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase, dbCourseToModel } from '@/lib/supabase';
 import { Course, Lesson, Question, SpiritualActivity, User } from '@/types/models';
+import { Json } from '@/integrations/supabase/types';
 
 // Course management
 export async function getAllCourses() {
@@ -17,10 +18,11 @@ export async function getAllCourses() {
     throw error;
   }
   
-  return data as Course[];
+  // Transform the data to match our model
+  return data.map(course => dbCourseToModel(course)) as Course[];
 }
 
-export async function createCourse(course: Partial<Course>) {
+export async function createCourse(course: { title: string; description: string; order_index?: number; is_active?: boolean; image_url?: string | null }) {
   const { data, error } = await supabase
     .from('courses')
     .insert([course])
@@ -64,7 +66,15 @@ export async function deleteCourse(courseId: string) {
 }
 
 // Lesson management
-export async function createLesson(lesson: Partial<Lesson>) {
+export async function createLesson(lesson: { 
+  course_id: string;
+  title: string;
+  main_text?: string;
+  key_verse?: string;
+  order_index?: number;
+  is_active?: boolean;
+  image_url?: string | null;
+}) {
   const { data, error } = await supabase
     .from('lessons')
     .insert([{
@@ -116,7 +126,15 @@ export async function deleteLesson(lessonId: string) {
 }
 
 // Question management
-export async function createQuestion(question: Partial<Question>) {
+export async function createQuestion(question: {
+  lesson_id: string;
+  text: string;
+  type: string;
+  options?: string[] | Json;
+  correct_answer?: string | string[] | Json;
+  verse_reference?: string;
+  xp_value?: number;
+}) {
   const { data, error } = await supabase
     .from('questions')
     .insert([question])
@@ -160,7 +178,12 @@ export async function deleteQuestion(questionId: string) {
 }
 
 // Spiritual activity management
-export async function createSpiritualActivity(activity: Partial<SpiritualActivity>) {
+export async function createSpiritualActivity(activity: {
+  lesson_id: string;
+  activity_type: string;
+  description: string;
+  prompt: string;
+}) {
   const { data, error } = await supabase
     .from('spiritual_activities')
     .insert([activity])
